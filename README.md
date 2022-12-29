@@ -1,3 +1,7 @@
+# OPENAI CHATBOT APPLICATION
+
+Link to open AI - (https://prettier.io/docs/en/configuration.html)
+
 ## To Add package.json
 
 ```bash
