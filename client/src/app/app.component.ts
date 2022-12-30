@@ -29,13 +29,6 @@ export class AppComponent implements OnInit {
         this.Chats.push(new Chat('', true, uniqueId));
         this.cd.detectChanges();
         this.typeText(uniqueId, 'Hello! This is BotRaja, How can I help you?');
-        // this.Chats.push(
-        //     new Chat(
-        //         'Hello! This is BotRaja, How can I help you?',
-        //         true,
-        //         this.generateUniqueId()
-        //     )
-        // );
     }
 
     onSubmit() {
@@ -97,14 +90,7 @@ export class AppComponent implements OnInit {
                         (x) => x.divId === uniqueId
                     );
                     if (updateChat) {
-                        let index = this.Chats.indexOf(updateChat);
                         this.typeText(uniqueId, res.bot.trim());
-
-                        // this.Chats[index] = new Chat(
-                        //     res.bot.trim(),
-                        //     true,
-                        //     uniqueId
-                        // );
                     }
                     console.log('Response - ' + res.bot.trim());
                 },
@@ -124,16 +110,19 @@ export class AppComponent implements OnInit {
     typeText(uniqueId: string, text: string) {
         clearInterval(this.loadInterval);
         const messageDiv = document.getElementById(uniqueId);
-        let index = 0;
+        if (messageDiv) {
+            messageDiv.innerHTML = ' ';
+            let index = 0;
 
-        let interval = setInterval(() => {
-            if (messageDiv && index < text.length) {
-                messageDiv.innerHTML += text.charAt(index);
-                index++;
-            } else {
-                clearInterval(interval);
-            }
-        }, 40);
+            let interval = setInterval(() => {
+                if (index < text.length) {
+                    messageDiv.innerHTML += text.charAt(index);
+                    index++;
+                } else {
+                    clearInterval(interval);
+                }
+            }, 40);
+        }
     }
 
     generateUniqueId() {
