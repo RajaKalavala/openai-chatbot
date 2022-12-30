@@ -1,5 +1,5 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 
 @Component({
@@ -18,11 +18,19 @@ export class AppComponent implements OnInit {
         userChat: new FormControl(''),
     });
 
-    constructor(private formBuilder: FormBuilder, private http: HttpClient) {}
+    constructor(
+        private formBuilder: FormBuilder,
+        private http: HttpClient,
+        private cd: ChangeDetectorRef
+    ) {}
 
     ngOnInit(): void {
         this.Chats.push(
-            new Chat('Hello! This is BotRaja, How can I help you?', true)
+            new Chat(
+                'Hello! This is BotRaja, How can I help you?',
+                true,
+                this.generateUniqueId()
+            )
         );
     }
 
@@ -30,14 +38,19 @@ export class AppComponent implements OnInit {
         let chat = this.chatForm.value.userChat;
         if (chat) {
             // bot's chatstripe
-            this.uniqueId = this.generateUniqueId();
-            this.Chats.push(new Chat(chat, false));
+            let uniqueId = this.generateUniqueId();
+            this.Chats.push(new Chat(chat, false, this.generateUniqueId()));
+            this.cd.detectChanges();
+
+            this.chatForm.reset();
 
             // to focus scroll to the bottom
             const chatContainer = document.querySelector('#chat_container');
             if (chatContainer) {
                 chatContainer.scrollTop = chatContainer.scrollHeight;
             }
+
+            this.getResponse(chat);
 
             // specific message div
             const messageDiv = document.getElementById(this.uniqueId);
@@ -46,14 +59,22 @@ export class AppComponent implements OnInit {
             if (messageDiv) {
                 this.loader(messageDiv);
             }
-            this.getResponse(chat);
-            this.chatForm.reset();
         }
 
         console.log('submit clicked - ' + this.chatForm.value.userChat);
     }
 
     getResponse(prompt: string) {
+        let uniqueId = this.generateUniqueId();
+        this.Chats.push(new Chat('', true, uniqueId));
+        this.cd.detectChanges();
+
+        const messageDiv = document.getElementById(uniqueId);
+
+        // messageDiv.innerHTML = "..."
+        if (messageDiv) {
+            this.loader(messageDiv);
+        }
         this.http
             .post(
                 this.url,
@@ -68,10 +89,27 @@ export class AppComponent implements OnInit {
             )
             .subscribe({
                 next: (res: any) => {
-                    this.Chats.push(new Chat(res.bot.trim(), true));
+                    let updateChat = this.Chats.find(
+                        (x) => x.divId === uniqueId
+                    );
+                    if (updateChat) {
+                        let index = this.Chats.indexOf(updateChat);
+                        this.Chats[index] = new Chat(
+                            res.bot.trim(),
+                            true,
+                            uniqueId
+                        );
+                    }
                     console.log('Response - ' + res.bot.trim());
                 },
                 error: (err) => {
+                    this.Chats.push(
+                        new Chat(
+                            'Something went wrong. Please check logs.',
+                            true,
+                            uniqueId
+                        )
+                    );
                     console.log('Error - ' + err.message);
                 },
             });
@@ -114,10 +152,12 @@ export class AppComponent implements OnInit {
 }
 
 class Chat {
-    constructor(message: string, isBot: boolean) {
+    constructor(message: string, isBot: boolean, divId: string) {
         this.message = message;
         this.isBot = isBot;
+        this.divId = divId;
     }
     message: string;
     isBot: boolean;
+    divId: string;
 }
