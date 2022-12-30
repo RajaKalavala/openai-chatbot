@@ -25,13 +25,17 @@ export class AppComponent implements OnInit {
     ) {}
 
     ngOnInit(): void {
-        this.Chats.push(
-            new Chat(
-                'Hello! This is BotRaja, How can I help you?',
-                true,
-                this.generateUniqueId()
-            )
-        );
+        let uniqueId = this.generateUniqueId();
+        this.Chats.push(new Chat('', true, uniqueId));
+        this.cd.detectChanges();
+        this.typeText(uniqueId, 'Hello! This is BotRaja, How can I help you?');
+        // this.Chats.push(
+        //     new Chat(
+        //         'Hello! This is BotRaja, How can I help you?',
+        //         true,
+        //         this.generateUniqueId()
+        //     )
+        // );
     }
 
     onSubmit() {
@@ -94,11 +98,13 @@ export class AppComponent implements OnInit {
                     );
                     if (updateChat) {
                         let index = this.Chats.indexOf(updateChat);
-                        this.Chats[index] = new Chat(
-                            res.bot.trim(),
-                            true,
-                            uniqueId
-                        );
+                        this.typeText(uniqueId, res.bot.trim());
+
+                        // this.Chats[index] = new Chat(
+                        //     res.bot.trim(),
+                        //     true,
+                        //     uniqueId
+                        // );
                     }
                     console.log('Response - ' + res.bot.trim());
                 },
@@ -115,17 +121,19 @@ export class AppComponent implements OnInit {
             });
     }
 
-    typeText(element: any, text: string) {
+    typeText(uniqueId: string, text: string) {
+        clearInterval(this.loadInterval);
+        const messageDiv = document.getElementById(uniqueId);
         let index = 0;
 
         let interval = setInterval(() => {
-            if (index < text.length) {
-                element.innerHTML += text.charAt(index);
+            if (messageDiv && index < text.length) {
+                messageDiv.innerHTML += text.charAt(index);
                 index++;
             } else {
                 clearInterval(interval);
             }
-        }, 20);
+        }, 40);
     }
 
     generateUniqueId() {
