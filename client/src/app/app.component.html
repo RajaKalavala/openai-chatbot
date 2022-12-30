@@ -10,7 +10,9 @@
                         [alt]="chat.isBot ? 'bot' : 'user'"
                     />
                 </div>
-                <div class="message" id="uniqueId">{{ chat.message }}</div>
+                <div class="message" [id]="uniqueId">
+                    {{ chat.message }}
+                </div>
             </div>
         </div>
     </div>
@@ -20,7 +22,7 @@
             name="prompt"
             rows="1"
             cols="1"
-            placeholder="Ask codex..."
+            placeholder="Ask BotRaja..."
             formControlName="userChat"
         ></textarea>
         <button type="submit"><img src="assets/send.svg" alt="send" /></button>

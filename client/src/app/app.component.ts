@@ -10,7 +10,9 @@ import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 export class AppComponent implements OnInit {
     title = 'client';
     Chats: Chat[] = [];
-    url = 'http://localhost:5001';
+    url = 'https://openai-chatbot-c9ry.onrender.com';
+    loadInterval: any;
+    uniqueId = '';
 
     chatForm = new FormGroup({
         userChat: new FormControl(''),
@@ -18,12 +20,32 @@ export class AppComponent implements OnInit {
 
     constructor(private formBuilder: FormBuilder, private http: HttpClient) {}
 
-    ngOnInit(): void {}
+    ngOnInit(): void {
+        this.Chats.push(
+            new Chat('Hello! This is BotRaja, How can I help you?', true)
+        );
+    }
 
     onSubmit() {
         let chat = this.chatForm.value.userChat;
         if (chat) {
+            // bot's chatstripe
+            this.uniqueId = this.generateUniqueId();
             this.Chats.push(new Chat(chat, false));
+
+            // to focus scroll to the bottom
+            const chatContainer = document.querySelector('#chat_container');
+            if (chatContainer) {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+
+            // specific message div
+            const messageDiv = document.getElementById(this.uniqueId);
+
+            // messageDiv.innerHTML = "..."
+            if (messageDiv) {
+                this.loader(messageDiv);
+            }
             this.getResponse(chat);
             this.chatForm.reset();
         }
@@ -46,13 +68,48 @@ export class AppComponent implements OnInit {
             )
             .subscribe({
                 next: (res: any) => {
-                    this.Chats.push(new Chat(res.bot, true));
-                    console.log('Response - ' + res.bot);
+                    this.Chats.push(new Chat(res.bot.trim(), true));
+                    console.log('Response - ' + res.bot.trim());
                 },
                 error: (err) => {
                     console.log('Error - ' + err.message);
                 },
             });
+    }
+
+    typeText(element: any, text: string) {
+        let index = 0;
+
+        let interval = setInterval(() => {
+            if (index < text.length) {
+                element.innerHTML += text.charAt(index);
+                index++;
+            } else {
+                clearInterval(interval);
+            }
+        }, 20);
+    }
+
+    generateUniqueId() {
+        const timestamp = Date.now();
+        const randomNumber = Math.random();
+        const hexadecimalString = randomNumber.toString(16);
+
+        return `id-${timestamp}-${hexadecimalString}`;
+    }
+
+    loader(element: any) {
+        element.textContent = '';
+
+        this.loadInterval = setInterval(() => {
+            // Update the text content of the loading indicator
+            element.textContent += '.';
+
+            // If the loading indicator has reached three dots, reset it
+            if (element.textContent === '....') {
+                element.textContent = '';
+            }
+        }, 300);
     }
 }
 
