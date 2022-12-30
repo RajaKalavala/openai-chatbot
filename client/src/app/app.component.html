@@ -17,13 +17,14 @@
         </div>
     </div>
 
-    <form [formGroup]="chatForm" (ngSubmit)="onSubmit()">
+    <form [formGroup]="chatForm" (ngSubmit)="onSubmit($event)">
         <textarea
             name="prompt"
             rows="1"
             cols="1"
             placeholder="Ask BotRaja..."
             formControlName="userChat"
+            (keyup)="handleKeyUp($event)"
         ></textarea>
         <button type="submit"><img src="assets/send.svg" alt="send" /></button>
     </form>

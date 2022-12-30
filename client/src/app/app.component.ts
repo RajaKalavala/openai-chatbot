@@ -31,7 +31,8 @@ export class AppComponent implements OnInit {
         this.typeText(uniqueId, 'Hello! This is BotRaja, How can I help you?');
     }
 
-    onSubmit() {
+    onSubmit(e: any) {
+        e.preventDefault();
         let chat = this.chatForm.value.userChat;
         if (chat) {
             // bot's chatstripe
@@ -61,17 +62,22 @@ export class AppComponent implements OnInit {
         console.log('submit clicked - ' + this.chatForm.value.userChat);
     }
 
+    handleKeyUp(e: any) {
+        if (e.keyCode === 13) {
+            this.onSubmit(e);
+        }
+    }
+
     getResponse(prompt: string) {
         let uniqueId = this.generateUniqueId();
         this.Chats.push(new Chat('', true, uniqueId));
         this.cd.detectChanges();
 
         const messageDiv = document.getElementById(uniqueId);
-
-        // messageDiv.innerHTML = "..."
         if (messageDiv) {
             this.loader(messageDiv);
         }
+
         this.http
             .post(
                 this.url,
