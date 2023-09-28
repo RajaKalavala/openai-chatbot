@@ -1,6 +1,6 @@
 # OPENAI CHATBOT APPLICATION
 
-Link to open AI - (https://prettier.io/docs/en/configuration.html)
+Link to open AI - ([AI Chatbot](https://openai-chatbot-cyuc4eqhh-rajakalavala.vercel.app/))
 
 ## To Add package.json
 
